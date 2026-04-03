@@ -3,41 +3,77 @@ import { getLogFormat, getRelativePath, parseGitLog, toGitShowUri } from './gitH
 
 describe('parseGitLog', () => {
   it('parses git log rows into commits', () => {
-    const separator = '\u001f';
+    const field = '\u001f';
+    const record = '\u001e';
     const output = [
-      ['abc123', 'abc123', 'Initial commit', '2026-04-03'].join(separator),
-      ['def456', 'def456', 'Update feature', '2026-04-04'].join(separator),
-    ].join('\n');
+      ['abc123', 'abc123', 'Initial commit', 'Jane Doe', '2026-04-03T10:11:12+00:00', ''].join(field),
+      ['def456', 'def456', 'Update feature', 'John Doe', '2026-04-04T12:13:14+00:00', ''].join(field),
+    ].join(record);
 
     expect(parseGitLog(output)).toEqual([
       {
         hash: 'abc123',
         shortHash: 'abc123',
         subject: 'Initial commit',
-        authorDate: '2026-04-03',
+        authorName: 'Jane Doe',
+        authorDate: '2026-04-03T10:11:12+00:00',
+        body: '',
       },
       {
         hash: 'def456',
         shortHash: 'def456',
         subject: 'Update feature',
-        authorDate: '2026-04-04',
+        authorName: 'John Doe',
+        authorDate: '2026-04-04T12:13:14+00:00',
+        body: '',
       },
     ]);
   });
 
   it('skips malformed rows', () => {
-    const separator = '\u001f';
+    const field = '\u001f';
+    const record = '\u001e';
     const output = [
-      ['abc123', 'abc123', 'Initial commit', '2026-04-03'].join(separator),
+      ['abc123', 'abc123', 'Initial commit', 'Jane Doe', '2026-04-03T10:11:12+00:00', ''].join(field),
       'broken-line',
-    ].join('\n');
+    ].join(record);
 
     expect(parseGitLog(output)).toEqual([
       {
         hash: 'abc123',
         shortHash: 'abc123',
         subject: 'Initial commit',
-        authorDate: '2026-04-03',
+        authorName: 'Jane Doe',
+        authorDate: '2026-04-03T10:11:12+00:00',
+        body: '',
+      },
+    ]);
+  });
+
+  it('parses author and body from record-separated git log output', () => {
+    const field = '\u001f';
+    const record = '\u001e';
+    const output = [
+      ['abc123', 'abc123', 'Initial commit', 'Jane Doe', '2026-04-03T10:11:12+00:00', 'Added the initial implementation.'].join(field),
+      ['def456', 'def456', 'Update feature', 'John Doe', '2026-04-04T12:13:14+00:00', 'Improved details.\nAdded tests.'].join(field),
+    ].join(record);
+
+    expect(parseGitLog(output)).toEqual([
+      {
+        hash: 'abc123',
+        shortHash: 'abc123',
+        subject: 'Initial commit',
+        authorName: 'Jane Doe',
+        authorDate: '2026-04-03T10:11:12+00:00',
+        body: 'Added the initial implementation.',
+      },
+      {
+        hash: 'def456',
+        shortHash: 'def456',
+        subject: 'Update feature',
+        authorName: 'John Doe',
+        authorDate: '2026-04-04T12:13:14+00:00',
+        body: 'Improved details.\nAdded tests.',
       },
     ]);
   });
@@ -45,7 +81,7 @@ describe('parseGitLog', () => {
 
 describe('git history helpers', () => {
   it('uses the expected git log format', () => {
-    expect(getLogFormat()).toBe('%H\u001f%h\u001f%s\u001f%ad');
+    expect(getLogFormat()).toBe('%H\u001f%h\u001f%s\u001f%an\u001f%aI\u001f%b\u001e');
   });
 
   it('normalizes paths for git commands', () => {

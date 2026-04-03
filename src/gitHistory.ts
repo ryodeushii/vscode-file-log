@@ -4,24 +4,28 @@ export type GitCommit = {
   hash: string;
   shortHash: string;
   subject: string;
+  authorName: string;
   authorDate: string;
+  body: string;
 };
 
 const LOG_SEPARATOR = '\u001f';
+const RECORD_SEPARATOR = '\u001e';
 
 export function getLogFormat(): string {
-  return ['%H', '%h', '%s', '%ad'].join(LOG_SEPARATOR);
+  return ['%H', '%h', '%s', '%an', '%aI', '%b'].join(LOG_SEPARATOR) + RECORD_SEPARATOR;
 }
 
 export function parseGitLog(output: string): GitCommit[] {
   return output
-    .split('\n')
-    .map((line) => line.trim())
+    .split(RECORD_SEPARATOR)
+    .map((record) => record.trim())
     .filter(Boolean)
-    .map((line) => {
-      const [hash, shortHash, subject, authorDate] = line.split(LOG_SEPARATOR);
+    .map((record) => {
+      const [hash, shortHash, subject, authorName, authorDate, ...bodyParts] = record.split(LOG_SEPARATOR);
+      const body = bodyParts.join(LOG_SEPARATOR).trim();
 
-      if (!hash || !shortHash || !subject || !authorDate) {
+      if (!hash || !shortHash || !subject || !authorName || !authorDate) {
         return undefined;
       }
 
@@ -29,7 +33,9 @@ export function parseGitLog(output: string): GitCommit[] {
         hash,
         shortHash,
         subject,
+        authorName,
         authorDate,
+        body,
       } satisfies GitCommit;
     })
     .filter((commit): commit is GitCommit => commit !== undefined);

@@ -3,6 +3,12 @@ import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
 import { getLogFormat, getRelativePath, parseGitLog, toGitShowUri, type GitCommit } from './gitHistory';
+import {
+  buildCommitDetailQuickPickItems,
+  buildCommitQuickPickItem,
+  getHistoryPickerSettings,
+  type CommitDetailQuickPickItem,
+} from './historyPicker';
 
 const execFile = promisify(cp.execFile);
 
@@ -58,24 +64,10 @@ async function showGitHistory(resource?: vscode.Uri): Promise<void> {
     return;
   }
 
-  const picked = await vscode.window.showQuickPick(
-    commits.map((commit) => ({
-      label: `${commit.shortHash} ${commit.subject}`,
-      description: commit.authorDate,
-      commit,
-    })),
-    {
-      title: `Git history: ${path.basename(fileUri.fsPath)}`,
-      matchOnDescription: true,
-      placeHolder: 'Select a commit to open the file diff',
-    },
-  );
-
-  if (!picked) {
-    return;
-  }
-
-  await openDiffEditor(repoRoot, relativePath, picked.commit);
+  const settings = getHistoryPickerSettings(vscode.workspace.getConfiguration('fileGitHistory'));
+  await showCommitHistoryQuickPick(path.basename(fileUri.fsPath), commits, settings, async (commit) => {
+    await openDiffEditor(repoRoot, relativePath, commit);
+  });
 }
 
 async function resolveTargetFile(resource?: vscode.Uri): Promise<vscode.Uri | undefined> {
@@ -147,7 +139,114 @@ async function openDiffEditor(repoRoot: string, relativePath: string, commit: Gi
   const title = `${path.basename(relativePath)} (${commit.shortHash})`;
 
   await vscode.commands.executeCommand('vscode.diff', left, right, title, {
-    preview: true,
+    preview: false,
+  });
+}
+
+async function showCommitHistoryQuickPick(
+  fileName: string,
+  commits: GitCommit[],
+  settings: ReturnType<typeof getHistoryPickerSettings>,
+  onOpenDiff: (commit: GitCommit) => Promise<void>,
+): Promise<void> {
+  const quickPick = vscode.window.createQuickPick<
+    ReturnType<typeof buildCommitQuickPickItem> | CommitDetailQuickPickItem
+  >();
+  const detailButton: vscode.QuickInputButton = {
+    iconPath: new vscode.ThemeIcon('arrow-right'),
+    tooltip: 'Show commit details',
+  };
+  const commitItems = commits.map((commit) => ({
+    ...buildCommitQuickPickItem(commit, settings),
+    buttons: [detailButton],
+  }));
+  const backButton = vscode.QuickInputButtons.Back;
+  let currentView: 'history' | 'details' = 'history';
+  let selectedCommit: GitCommit | undefined;
+
+  const showHistoryView = () => {
+    currentView = 'history';
+    quickPick.step = 1;
+    quickPick.totalSteps = 2;
+    quickPick.buttons = [];
+    quickPick.placeholder = 'Select a commit or open commit details';
+    quickPick.items = commitItems;
+    quickPick.activeItems = selectedCommit
+      ? commitItems.filter((item) => item.commit.hash === selectedCommit?.hash)
+      : [];
+  };
+
+  const showDetailsView = (commit: GitCommit) => {
+    currentView = 'details';
+    selectedCommit = commit;
+    quickPick.step = 2;
+    quickPick.totalSteps = 2;
+    quickPick.buttons = [backButton];
+    quickPick.placeholder = 'Review commit details or open the diff';
+    quickPick.items = buildCommitDetailQuickPickItems(commit, settings);
+    quickPick.activeItems = [quickPick.items[quickPick.items.length - 1]];
+  };
+
+  quickPick.title = `Git history: ${fileName}`;
+  quickPick.placeholder = 'Select a commit or open commit details';
+  quickPick.matchOnDescription = true;
+  quickPick.matchOnDetail = true;
+  showHistoryView();
+
+  await new Promise<void>((resolve) => {
+    const disposables: vscode.Disposable[] = [];
+    let settled = false;
+
+    const close = () => {
+      if (settled) {
+        return;
+      }
+
+      settled = true;
+      for (const disposable of disposables) {
+        disposable.dispose();
+      }
+      quickPick.hide();
+      resolve();
+    };
+
+    disposables.push(
+      quickPick.onDidAccept(async () => {
+        const selected = quickPick.selectedItems[0];
+        if (!selected) {
+          return;
+        }
+
+        if (currentView === 'history' && 'commit' in selected) {
+          selectedCommit = selected.commit;
+          await onOpenDiff(selected.commit);
+          close();
+          return;
+        }
+
+        if (currentView === 'details' && 'action' in selected && selected.action === 'openDiff' && selectedCommit) {
+          await onOpenDiff(selectedCommit);
+          close();
+        }
+      }),
+      quickPick.onDidTriggerItemButton(async ({ item, button }) => {
+        if (button !== detailButton || !('commit' in item)) {
+          return;
+        }
+
+        showDetailsView(item.commit);
+      }),
+      quickPick.onDidTriggerButton((button) => {
+        if (button === backButton) {
+          showHistoryView();
+        }
+      }),
+      quickPick.onDidHide(() => {
+        close();
+      }),
+    );
+
+    quickPick.show();
   });
 }
 

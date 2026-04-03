@@ -32,6 +32,26 @@
         "title": "Show Git History"
       }
     ],
+    "configuration": {
+      "title": "File Git History",
+      "properties": {
+        "fileGitHistory.showDate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Show the commit date in the history picker."
+        },
+        "fileGitHistory.showTime": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show the commit time in the history picker."
+        },
+        "fileGitHistory.showDetailsInPicker": {
+          "type": "boolean",
+          "default": false,
+          "description": "Show author, full hash, and summary details in the history picker rows."
+        }
+      }
+    },
     "menus": {
       "explorer/context": [
         {
