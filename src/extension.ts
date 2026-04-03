@@ -2,7 +2,14 @@ import * as cp from 'node:child_process';
 import * as path from 'node:path';
 import { promisify } from 'node:util';
 import * as vscode from 'vscode';
-import { getLogFormat, getRelativePath, parseGitLog, toGitShowUri, type GitCommit } from './gitHistory';
+import {
+  getLogFormat,
+  getRelativePath,
+  parseGitLog,
+  shouldTreatMissingRevisionAsEmpty,
+  toGitShowUri,
+  type GitCommit,
+} from './gitHistory';
 import {
   buildCommitDetailQuickPickItems,
   buildCommitQuickPickItem,
@@ -16,6 +23,7 @@ type GitShowQuery = {
   repo: string;
   path: string;
   ref: string;
+  emptyWhenMissing: boolean;
 };
 
 class GitFileContentProvider implements vscode.TextDocumentContentProvider {
@@ -25,9 +33,16 @@ class GitFileContentProvider implements vscode.TextDocumentContentProvider {
 
   async provideTextDocumentContent(uri: vscode.Uri): Promise<string> {
     const query = parseGitShowQuery(uri);
-    const content = await readFileAtRevision(query.repo, query.path, query.ref);
+    try {
+      return await readFileAtRevision(query.repo, query.path, query.ref);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unable to load file content from git.';
+      if (query.emptyWhenMissing && shouldTreatMissingRevisionAsEmpty(message)) {
+        return '';
+      }
 
-    return content;
+      return `Unable to load ${query.path} at ${query.ref}.\n\n${message}`;
+    }
   }
 }
 
@@ -128,13 +143,13 @@ async function readFileAtRevision(repoRoot: string, relativePath: string, ref: s
     return stdout;
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unable to load file content from git.';
-    return `Unable to load ${relativePath} at ${ref}.\n\n${message}`;
+    throw new Error(message);
   }
 }
 
 async function openDiffEditor(repoRoot: string, relativePath: string, commit: GitCommit): Promise<void> {
   const previousRef = `${commit.hash}^`;
-  const left = vscode.Uri.parse(toGitShowUri(repoRoot, relativePath, previousRef));
+  const left = vscode.Uri.parse(toGitShowUri(repoRoot, relativePath, previousRef, { emptyWhenMissing: true }));
   const right = vscode.Uri.parse(toGitShowUri(repoRoot, relativePath, commit.hash));
   const title = `${path.basename(relativePath)} (${commit.shortHash})`;
 
@@ -255,6 +270,7 @@ function parseGitShowQuery(uri: vscode.Uri): GitShowQuery {
   const repo = params.get('repo');
   const filePath = params.get('path');
   const ref = params.get('ref');
+  const emptyWhenMissing = params.get('emptyWhenMissing') === 'true';
 
   if (!repo || !filePath || !ref) {
     throw new Error('Invalid git file history URI.');
@@ -264,5 +280,6 @@ function parseGitShowQuery(uri: vscode.Uri): GitShowQuery {
     repo,
     path: filePath,
     ref,
+    emptyWhenMissing,
   };
 }

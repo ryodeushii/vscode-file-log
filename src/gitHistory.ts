@@ -9,6 +9,10 @@ export type GitCommit = {
   body: string;
 };
 
+type GitShowUriOptions = {
+  emptyWhenMissing?: boolean;
+};
+
 const LOG_SEPARATOR = '\u001f';
 const RECORD_SEPARATOR = '\u001e';
 
@@ -45,12 +49,29 @@ export function getRelativePath(repoRoot: string, filePath: string): string {
   return path.relative(repoRoot, filePath).split(path.sep).join('/');
 }
 
-export function toGitShowUri(repoRoot: string, relativePath: string, ref: string): string {
+export function toGitShowUri(
+  repoRoot: string,
+  relativePath: string,
+  ref: string,
+  options: GitShowUriOptions = {},
+): string {
   const query = new URLSearchParams({
     repo: repoRoot,
     path: relativePath,
     ref,
   });
 
+  if (options.emptyWhenMissing) {
+    query.set('emptyWhenMissing', 'true');
+  }
+
   return `git-file-history:${encodeURI(relativePath)}?${query.toString()}`;
+}
+
+export function shouldTreatMissingRevisionAsEmpty(message: string): boolean {
+  return (
+    message.includes('exists on disk, but not in') ||
+    message.includes('invalid object name') ||
+    message.includes('unknown revision or path not in the working tree')
+  );
 }

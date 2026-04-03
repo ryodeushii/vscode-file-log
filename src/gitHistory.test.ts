@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { getLogFormat, getRelativePath, parseGitLog, toGitShowUri } from './gitHistory';
+import {
+  getLogFormat,
+  getRelativePath,
+  parseGitLog,
+  shouldTreatMissingRevisionAsEmpty,
+  toGitShowUri,
+} from './gitHistory';
 
 describe('parseGitLog', () => {
   it('parses git log rows into commits', () => {
@@ -98,5 +104,23 @@ describe('git history helpers', () => {
     expect(toGitShowUri('/repo', 'src/file name.ts', 'abc123')).toBe(
       'git-file-history:src/file%20name.ts?repo=%2Frepo&path=src%2Ffile+name.ts&ref=abc123',
     );
+  });
+
+  it('marks parent-side documents to render empty when the file was missing', () => {
+    expect(toGitShowUri('/repo', 'src/file.ts', 'abc123^', { emptyWhenMissing: true })).toBe(
+      'git-file-history:src/file.ts?repo=%2Frepo&path=src%2Ffile.ts&ref=abc123%5E&emptyWhenMissing=true',
+    );
+  });
+
+  it('treats missing parent content errors as empty diff sources', () => {
+    expect(shouldTreatMissingRevisionAsEmpty("fatal: path 'src/file.ts' exists on disk, but not in 'abc123^'"))
+      .toBe(true);
+    expect(shouldTreatMissingRevisionAsEmpty("fatal: invalid object name 'abc123^'.")).toBe(true);
+    expect(
+      shouldTreatMissingRevisionAsEmpty(
+        "fatal: ambiguous argument 'abc123^:src/file.ts': unknown revision or path not in the working tree.",
+      ),
+    ).toBe(true);
+    expect(shouldTreatMissingRevisionAsEmpty('fatal: not a git repository')).toBe(false);
   });
 });

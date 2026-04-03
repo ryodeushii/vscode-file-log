@@ -44,6 +44,7 @@ When you run `Show Git History`, the extension:
 5. opens a diff between `commit^` and `commit`
 
 That means the diff shows exactly what changed in that file in the selected commit.
+If the file was introduced in that commit, the left side opens as an empty document instead of a Git error message.
 
 ## Usage
 
@@ -187,7 +188,7 @@ The result is a versioned release artifact that is ready to install or share.
 
 - this extension depends on Git being available in the environment
 - diffs are file-focused and compare the selected commit to its parent
-- first-commit and complex rename history cases are intentionally kept simple for now
+- complex rename history cases are intentionally kept simple for now
 
 ## License
 
