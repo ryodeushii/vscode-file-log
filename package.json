@@ -1,13 +1,13 @@
 {
   "name": "vscode-file-log",
   "displayName": "File Git History",
-  "description": "Show git history for a file from the VS Code explorer and open diffs for selected commits.",
+  "description": "Inspect a file's Git history from VS Code context menus and open file-level diffs for selected commits.",
   "version": "0.0.2",
   "publisher": "local",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://example.com/local/vscode-file-log.git"
+    "url": "https://github.com/ryodeushii/vscode-file-log.git"
   },
   "engines": {
     "vscode": "^1.90.0"
@@ -20,6 +20,14 @@
   ],
   "categories": [
     "Other"
+  ],
+  "keywords": [
+    "vscode",
+    "git",
+    "history",
+    "diff",
+    "file history",
+    "source control"
   ],
   "activationEvents": [
     "onCommand:fileGitHistory.showGitHistory"
