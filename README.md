@@ -125,11 +125,29 @@ You can install it in VS Code with `Extensions: Install from VSIX...`.
 
 ## Screenshots
 
-Add screenshots or short GIFs here once you have them. Good candidates:
+### Open From The Explorer
 
-- commit list picker opened from a file context menu
-- commit details view with Back navigation
-- diff editor opened for a selected commit
+![Context menu on file tree](./media/context%20menu%20on%20file%20tree.png)
+
+### Open From The Editor
+
+![Context menu on file content](./media/context%20menu%20on%20file%20content.png)
+
+### Command Entry
+
+![Show git history command](./media/show%20git%20history%20command.png)
+
+### Commit List
+
+![Commits list](./media/commits%20list.png)
+
+### Commit Details
+
+![Commit details](./media/commit%20details.png)
+
+### File Diff In Selected Commit
+
+![File diff in selected commit](./media/file%20diff%20in%20selected%20commit.png)
 
 ## Automated Releases
 

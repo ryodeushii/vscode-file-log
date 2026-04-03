@@ -3,20 +3,33 @@
   "displayName": "File Git History",
   "description": "Inspect a file's Git history from VS Code context menus and open file-level diffs for selected commits.",
   "version": "0.0.3",
-  "publisher": "local",
+  "publisher": "ryodeushii",
   "license": "MIT",
+  "icon": "assets/icon.png",
+  "homepage": "https://github.com/ryodeushii/vscode-file-log#readme",
+  "bugs": {
+    "url": "https://github.com/ryodeushii/vscode-file-log/issues"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/ryodeushii/vscode-file-log.git"
+  },
+  "galleryBanner": {
+    "color": "#101828",
+    "theme": "dark"
   },
   "engines": {
     "vscode": "^1.90.0"
   },
   "files": [
     "dist",
+    "assets",
+    "media",
     "package.json",
     "README.md",
-    "LICENSE"
+    "LICENSE",
+    "CHANGELOG.md",
+    "SUPPORT.md"
   ],
   "categories": [
     "Other"
@@ -96,7 +109,8 @@
     "watch": "tsc -p . --watch",
     "clean": "rm -rf dist",
     "test": "vitest run",
-    "package:vsix": "npx @vscode/vsce package -o vscode-file-log-${npm_package_version}.vsix"
+    "package:vsix": "npx @vscode/vsce package --githubBranch master -o vscode-file-log-${npm_package_version}.vsix",
+    "publish:vsce": "npx @vscode/vsce publish --githubBranch master --packagePath vscode-file-log-${npm_package_version}.vsix"
   },
   "devDependencies": {
     "@types/node": "^22.15.3",

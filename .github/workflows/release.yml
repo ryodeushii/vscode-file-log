@@ -64,6 +64,17 @@ jobs:
           npm run build
           npm run package:vsix
 
+      - name: Publish to VS Code Marketplace
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
+        run: |
+          if [ -z "$VSCE_PAT" ]; then
+            echo "VSCE_PAT is not configured; skipping VS Code Marketplace publish."
+            exit 0
+          fi
+
+          npm run publish:vsce
+
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ github.token }}
