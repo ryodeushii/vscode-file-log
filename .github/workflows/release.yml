@@ -81,6 +81,17 @@ jobs:
 
           npm run publish:vsce
 
+      - name: Publish to Open VSX
+        env:
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: |
+          if [ -z "$OVSX_PAT" ]; then
+            echo "OVSX_PAT is not configured; skipping Open VSX publish."
+            exit 0
+          fi
+
+          npm run publish:openvsx -- -p "$OVSX_PAT"
+
       - name: Create GitHub release
         env:
           GITHUB_TOKEN: ${{ github.token }}
