@@ -1,0 +1,80 @@
+{
+  "name": "vscode-file-log",
+  "displayName": "File Git History",
+  "description": "Show git history for a file from the VS Code explorer and open diffs for selected commits.",
+  "version": "0.0.1",
+  "publisher": "local",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://example.com/local/vscode-file-log.git"
+  },
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "files": [
+    "dist",
+    "package.json",
+    "README.md",
+    "LICENSE"
+  ],
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onCommand:fileGitHistory.showGitHistory"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "fileGitHistory.showGitHistory",
+        "title": "Show Git History"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "fileGitHistory.showGitHistory",
+          "when": "explorerResourceIsFolder == false",
+          "group": "navigation@99"
+        }
+      ],
+      "editor/context": [
+        {
+          "command": "fileGitHistory.showGitHistory",
+          "when": "resourceScheme == file",
+          "group": "navigation@99"
+        }
+      ],
+      "editor/title/context": [
+        {
+          "command": "fileGitHistory.showGitHistory",
+          "when": "resourceScheme == file",
+          "group": "navigation@99"
+        }
+      ],
+      "tab/context": [
+        {
+          "command": "fileGitHistory.showGitHistory",
+          "when": "resourceScheme == file",
+          "group": "navigation@99"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -p . --watch",
+    "clean": "rm -rf dist",
+    "test": "vitest run",
+    "package:vsix": "npx @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.3",
+    "@types/vscode": "^1.90.0",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "^5.8.3",
+    "vitest": "^3.1.1"
+  }
+}
