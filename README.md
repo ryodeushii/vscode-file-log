@@ -149,18 +149,29 @@ You can install it in VS Code with `Extensions: Install from VSIX...`.
 
 ![File diff in selected commit](./media/file%20diff%20in%20selected%20commit.png)
 
-## Automated Releases
+## Releases
 
-Pushes to `main` or `master` trigger the automated release workflow.
+Releases are created manually from the GitHub Actions UI.
 
 The workflow:
 
-1. bumps the patch version in `package.json` and `package-lock.json`
-2. commits the version bump back to the branch
-3. creates a git tag like `v0.0.2`
-4. runs tests and build
-5. packages `vscode-file-log-0.0.2.vsix`
-6. creates a GitHub Release and uploads the VSIX asset
+1. lets you choose the version bump type: `patch`, `minor`, or `major`
+2. bumps the version in `package.json` and `package-lock.json`
+3. commits the version bump back to the branch
+4. creates a git tag like `v0.1.0`
+5. runs tests and build
+6. packages `vscode-file-log-0.1.0.vsix`
+7. publishes to the VS Code Marketplace if `VSCE_PAT` is configured
+8. creates a GitHub Release and uploads the VSIX asset
+
+To run it:
+
+1. open the repository on GitHub
+2. go to `Actions`
+3. select the `Release VSIX` workflow
+4. click `Run workflow`
+5. choose `patch`, `minor`, or `major`
+6. start the run on your default branch
 
 The result is a versioned release artifact that is ready to install or share.
 
