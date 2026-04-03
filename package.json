@@ -2,7 +2,7 @@
   "name": "vscode-file-log",
   "displayName": "File Git History",
   "description": "Show git history for a file from the VS Code explorer and open diffs for selected commits.",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "publisher": "local",
   "license": "MIT",
   "repository": {
