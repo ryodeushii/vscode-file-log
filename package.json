@@ -1,6 +1,6 @@
 {
   "name": "vscode-file-log",
-  "displayName": "File Git History",
+  "displayName": "Git File History Viewer",
   "description": "Inspect a file's Git history from VS Code context menus and open file-level diffs for selected commits.",
   "version": "0.0.4",
   "publisher": "ryodeushii",
@@ -54,7 +54,7 @@
       }
     ],
     "configuration": {
-      "title": "File Git History",
+      "title": "Git File History Viewer",
       "properties": {
         "fileGitHistory.showDate": {
           "type": "boolean",

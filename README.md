@@ -1,10 +1,10 @@
-# File Git History
+# Git File History Viewer
 
 [![Release VSIX](https://github.com/ryodeushii/vscode-file-log/actions/workflows/release.yml/badge.svg)](https://github.com/ryodeushii/vscode-file-log/actions/workflows/release.yml)
 [![Latest Release](https://img.shields.io/github/v/release/ryodeushii/vscode-file-log)](https://github.com/ryodeushii/vscode-file-log/releases)
 [![License](https://img.shields.io/github/license/ryodeushii/vscode-file-log)](./LICENSE)
 
-`File Git History` is a VS Code extension for inspecting the history of a single file without leaving the editor.
+`Git File History Viewer` is a VS Code extension for inspecting the history of a single file without leaving the editor.
 
 It adds a `Show Git History` action to file context menus, reads that file's commit history with `git log`, and opens a diff for the selected commit against its parent.
 
