@@ -2,6 +2,7 @@
 
 [![Release VSIX](https://github.com/ryodeushii/vscode-file-log/actions/workflows/release.yml/badge.svg)](https://github.com/ryodeushii/vscode-file-log/actions/workflows/release.yml)
 [![Latest Release](https://img.shields.io/github/v/release/ryodeushii/vscode-file-log)](https://github.com/ryodeushii/vscode-file-log/releases)
+[![Visual Studio Marketplace Version](https://img.shields.io/visual-studio-marketplace/v/ryodeushii.vscode-file-log?style=flat-square)](https://marketplace.visualstudio.com/items?itemName=ryodeushii.vscode-file-log)
 [![License](https://img.shields.io/github/license/ryodeushii/vscode-file-log)](./LICENSE)
 
 `Git File History Viewer` is a VS Code extension for inspecting the history of a single file without leaving the editor.
