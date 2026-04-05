@@ -2,7 +2,7 @@
   "name": "vscode-file-log",
   "displayName": "Git File History Viewer",
   "description": "Inspect a file's Git history from VS Code context menus and open file-level diffs for selected commits.",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "publisher": "ryodeushii",
   "license": "MIT",
   "icon": "assets/icon.png",
